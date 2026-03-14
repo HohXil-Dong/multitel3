@@ -17,6 +17,8 @@ int main(int argc, char **argv) {
   float b[3],b1[3],b2[3],e[3],e1[3],e2[3];
   SACHEAD	hd,hd1,hd2;
 #ifdef SAC_LIB
+  void design(long int, char *, char *, double, double, double, double, double, float *, float *, long int *);
+  void apply(float *, long int, int, float *, float *, long int);
   char type[2] = {'B','P'}, proto[2] = {'B','U'};
   float	sn[30], sd[30];
   double f1, f2;
@@ -252,7 +254,7 @@ earthquake (strike 355, dip 80, rake -70), use:\n\
      if (intg) cumsum(syn[j],npt[j],dt);
      if (diff) diffrt(syn[j],npt[j],dt);
 #ifdef SAC_LIB
-     if (filter) apply(syn[j],(long int)npt,0,sn,sd,nsects);
+     if (filter) apply(syn[j],(long int)npt[j],0,sn,sd,nsects);
 #endif
      if (tstar>0.) conv(ftm,nftm,syn[j],npt[j]);
   }

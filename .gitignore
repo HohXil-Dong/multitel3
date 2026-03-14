@@ -20,6 +20,7 @@ PAS*
 
 # editor
 .vscode/
+AGENTS.md
 
 # system
 .DS_Store

@@ -3,8 +3,11 @@ CC=gcc
 FFLAGS=-C -O -g 
 CFLAGS=-O -m64
 #if SAC library has been installed, uncomment the next two lines
-#CFLAGS=$(optimize) -DSAC_LIB
-#SACLIB=-L/usr/local/sac/lib -lsac -lsacio
+CFLAGS=$(optimize) -DSAC_LIB
+SACLIB=-L${SACHOME}/lib -lsac -lsacio
+ifneq (,$(findstring -DSAC_LIB,$(CFLAGS)))
+LIBS += $(SACLIB)
+endif
 
 
 PROG= ./multitel3
