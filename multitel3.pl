@@ -48,17 +48,21 @@ mkdir($name1,0777) unless -d $name1;
 my $name2 = "$dir/${model}core_${s0_depth}";
 mkdir($name2,0777) unless -d $name2;
 
-open(RAY,"| $code2");
+open(RAY,"| $code2") or die "Cannot start $code2: $!\n";
 printf RAY "$s0_depth\n";
 printf RAY "0.00\n";       #receivers depth
 printf RAY "3.36 5.80\n"   ; #receiver side Vs and Vp value
 printf RAY "3.36 5.80 2.6\n";#PP/SS rebound point's Vs, Vp and Rho
 printf RAY "$stdmodel\n";
-close(RAY);
+close(RAY) or die "Failed while running $code2: $!\n";
+if ($? != 0) {
+  my $ecode = $? >> 8;
+  die "$code2 exited with non-zero status ($ecode)\n";
+}
 
 
 
-open(TEL3,"| $code");
+open(TEL3,"| $code") or die "Cannot start $code: $!\n";
 print TEL3 "$model\n";
 printf TEL3 "%d %f\n",$nt,$dt;
 printf TEL3 "%f\n",$s0_depth;
@@ -70,8 +74,11 @@ foreach $dist (@ddd) {
 #  printf TEL3 "%f %f %s\n",0.0,$dist/$deg2km,$dist;
   printf TEL3 "$name2/$dist.grn.\n";
 }
-close(TEL3);
+close(TEL3) or die "Failed while running $code: $!\n";
+if ($? != 0) {
+  my $ecode = $? >> 8;
+  die "$code exited with non-zero status ($ecode)\n";
+}
 unlink glob "ray*.info";
 exit(0);
-
 

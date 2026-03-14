@@ -1,6 +1,7 @@
 c        program interpolation
         subroutine interpolation(dist,gcarc,para,geom,time,tstar,ref_co,
-     &              raytype,outpara,outgeom,outtime,outtstar,outref_co)
+     &              takeoff,raytype,nray,outpara,outgeom,outtime,
+     &              outtstar,outref_co,outtakeoff)
 c       subroutine for interpolatation
 c       IN:
 c         dist - great circle distance
@@ -27,21 +28,33 @@ c
         real dist
         integer raytype
         integer i
+        integer nray(raykind)
+        integer nvalid
         real gcarc(max_ray,raykind), para(max_ray,raykind)
         real time(max_ray,raykind), geom(max_ray,raykind)
         real tstar(max_ray,raykind), ref_co(max_ray,raykind)
+        real takeoff(max_ray,raykind)
 
         real factor
         real outpara, outtime, outgeom
-        real outtstar, outref_co
+        real outtstar, outref_co, outtakeoff
+        logical found
 
-        do i = 1, max_ray
+        nvalid = nray(raytype)
+        if (nvalid .lt. 2) then
+          write(*,*) 'Error: not enough ray samples in interpolation'
+          write(*,*) 'raytype=',raytype,' nvalid=',nvalid
+          stop 2
+        endif
+
+        found = .false.
+        do i = 2, nvalid
           if (abs(dist-gcarc(i,raytype))>0.8) cycle
  
-          if ((dist >= gcarc(i-1,raytype) 
-     &    .and. dist < =gcarc(i,raytype))
-     &   .or. (dist < =gcarc(i-1,raytype) 
-     &   .and. dist >= gcarc(i,raytype)))
+          if ((dist .ge. gcarc(i-1,raytype)
+     &    .and. dist .le. gcarc(i,raytype))
+     &   .or. (dist .le. gcarc(i-1,raytype)
+     &   .and. dist .ge. gcarc(i,raytype)))
      &    then
                 
             factor = (dist - gcarc(i-1,raytype))
@@ -62,8 +75,16 @@ c
             outref_co = ref_co(i-1,raytype) 
      &                + factor*(ref_co(i,raytype)-ref_co(i-1,raytype))
 
+            outtakeoff = takeoff(i-1,raytype)
+     &                + factor*(takeoff(i,raytype)-takeoff(i-1,raytype))
+            found = .true.
             exit
           endif
         enddo
+        if (.not. found) then
+          write(*,*) 'Error: interpolation bracket not found'
+          write(*,*) 'raytype=',raytype,' dist=',dist
+          stop 2
+        endif
 
         end 

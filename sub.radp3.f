@@ -11,6 +11,9 @@
 *    adding radiation pattern for isotropic moment-tensor
 *        for D0 > 360
 *  -----------------------------------
+      AZ=0.
+      D0=0.
+      A0=0.
       IF(D0.GT.360.) THEN
          PD=1
          PU=1
@@ -28,7 +31,8 @@
       IF(SIH.GE.1.) CIH=0.
       IF(SIH.LT.1.) CIH=SQRT(1-SIH**2)
       SIH2=P*VS
-      CIH2=SQRT(1-SIH2**2)
+      IF(SIH2.GE.1.) CIH2=0.
+      IF(SIH2.LT.1.) CIH2=SQRT(1-SIH2**2)
 C     P2=P*P
 C   *** C PARAMETERS
       C1=SIH**2

@@ -74,8 +74,10 @@ c	write(*,*) 'rad',iFlt,pd,pu,svd,svu,shd,shu
        IF(IC.NE.1)
      - CALL CNVR(ZR0,ZDM,DW,N,P,VP1,VS1,DEN1,DEP1,NL1,IB,TR2)
 *   PP-reflector
+       IF(IB.EQ.4) THEN
        CALL REFL(ZRPP,ZDM,ZDM,ZDM
      -              ,DW,N,P,VP2,VS2,DEN2,DEP2,NL2,NL2,IB,TR0)
+       ENDIF
               GOTO 2
 1     CALL REFLSH(ZRSU,ZRSD,DW,N,P,VS,DEN,DEP,NL,LL,TR1)
       CALL CNVRSH(ZR0,DW,N,P,VS1,DEN1,DEP1,NL1,TR2)

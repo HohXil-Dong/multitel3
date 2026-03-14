@@ -25,10 +25,13 @@
       dimension gcarc(10000,6), para(10000,6)
       dimension geom(10000,6), time(10000,6)
       dimension tstar(10000,6), ref_co(10000,6)
+      dimension takeoff(10000,6)
+      dimension nray(6)
       real*4 parapcp,timepcp,geompcp,tstarpcp,ref_copcp
       real*4 parascs,timescs,geomscs,tstarscs,ref_coscs
       real*4 paras,times,geoms,tstars,ref_cos
       real*4 parap,timep,geomp,tstarp,ref_cop
+      real*4 xstart,xstartp
 
 
 * < Components and phases >
@@ -50,6 +53,12 @@
       data den1/ 2.4, 2.70, 3.3, 17*0.0/
       data dep1/ 5.0, 30.0, 0.0, 17*0.0/
 
+      nl2=2
+      data vp2/  6.40, 8.0, 18*0.0/
+      data vs2/  3.75, 4.4, 18*0.0/
+      data den2/ 2.70, 3.3, 18*0.0/
+      data dep2/ 30.00, 0.0, 18*0.0/
+
 
 * < Default Green's function parameters >
       xcorrection = 10**(-5.0)
@@ -58,12 +67,12 @@
 
 c ------------ End initialization ----------------------------
       read(*,'(a80)') model
+      r0=6371
       if(model(1:4) .ne. 'none') then
          open(2,file=model)
          READ(2,'(a40)') name
          READ(2,*) NL ,(VP (L),VS (L),DEN (L),DEP (L),L=1,NL )
          READ(2,*) NL1,(VP1(L),VS1(L),DEN1(L),DEP1(L),L=1,NL1)
-         r0=6371
          close(2)
       endif
         read(*,*) nt, dt
@@ -77,7 +86,7 @@ c ------------ End initialization ----------------------------
         read(*,*) depth
 
 * < Travel time >
-        call readray(gcarc,para,geom,time,tstar,ref_co)
+        call readray(gcarc,para,geom,time,tstar,ref_co,takeoff,nray)
 
 
 * < Direct S Synthetics >
@@ -87,10 +96,18 @@ c ------------ End initialization ----------------------------
            read(*,'(a80)') prefix2
            idx1=index(prefix1,' ')-1
            idx2=index(prefix2,' ')-1
-           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,4
-     -                  , paras,geoms,times,tstars,ref_cos)
-           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,1
-     -                  , parap,geomp,timep,tstarp,ref_cop)
+           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,
+     -                  takeoff,4,nray,paras,geoms,times,tstars,ref_cos,
+     -                  xstart)
+           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,
+     -                  takeoff,1,nray,parap,geomp,timep,tstarp,ref_cop,
+     -                  xstartp)
+           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,
+     -                  takeoff,6,nray,parascs,geomscs,timescs,tstarscs,
+     -                  ref_coscs,xstart)
+           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,
+     -                  takeoff,3,nray,parapcp,geompcp,timepcp,tstarpcp,
+     -                  ref_copcp,xstart)
            time1(1)=timep+tstart
            time1(2)=timep+tstart
            time1(3)=times+tstart
@@ -119,14 +136,9 @@ c ------------ End initialization ----------------------------
                       w(m) = (w(m)-w(m-1))/dt
 94                 continue
                    call wrtsac1(outfile1,dt,nt,time1(k),
-     -                 time1(1),time1(3),dist,az,xstart,w)
+     -                 time1(1),time1(3),dist,az,xstartp,w)
 98              continue   
 99         continue
-          
-           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,6
-     -                  ,parascs,geomscs,timescs,tstarscs,ref_coscs)
-           call interpolation(dist,gcarc,para,geom,time,tstar,ref_co,3
-     -                  ,parapcp,geompcp,timepcp,tstarpcp,ref_copcp)
            time2(1)=timepcp+tstart
            time2(2)=timepcp+tstart
            time2(3)=timescs+tstart          
@@ -155,7 +167,7 @@ c ------------ End initialization ----------------------------
                       w(m) = (w(m)-w(m-1))/dt
 194                continue
                    call wrtsac1(outfile2,dt,nt,time2(k),
-     -                   time1(1),time1(3),dist,az,xstart,w)
+     -                   time1(1),time1(3),dist,az,xstartp,w)
 198             continue
 199        continue
 100     continue
