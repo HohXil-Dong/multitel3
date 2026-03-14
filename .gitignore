@@ -1,0 +1,25 @@
+# build outputs
+multitel3
+multisyn
+rayinformation
+build/
+bin/
+
+# Fortran/C 中间文件
+*.o
+*.obj
+*.mod
+*.a
+*.so
+
+# logs / temp
+*.log
+tmp/
+temp/
+PAS*
+
+# editor
+.vscode/
+
+# system
+.DS_Store
